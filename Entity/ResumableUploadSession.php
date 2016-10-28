@@ -8,6 +8,7 @@ namespace SRIO\RestUploadBundle\Entity;
  */
 class ResumableUploadSession
 {
+
     /**
      * The session ID.
      *
@@ -49,6 +50,14 @@ class ResumableUploadSession
      * @var int
      */
     protected $contentLength;
+
+    /**
+     * Created at time.
+     *
+     * @var \DateTime
+     */
+    protected $createdAt;
+    
 
     /**
      * @param string $filePath
@@ -145,4 +154,22 @@ class ResumableUploadSession
     {
         return $this->storageName;
     }
+    
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTime $createdAt
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+    }
+
+
 }
