@@ -29,7 +29,7 @@ class UploadController extends Controller
      */
     public function uploadAction(Request $request)
     {
-        $form = $this->createForm(new MediaFormType());
+        $form = $this->createForm(MediaFormType::class);
 
         /** @var $uploadHandler UploadHandler */
         $uploadHandler = $this->get('srio_rest_upload.upload_handler');
