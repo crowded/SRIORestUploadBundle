@@ -22,6 +22,11 @@ class UploadHandler
     protected $processors = array();
 
     /**
+     * @var array
+     */
+    protected $acceptedMimeTypes = array();
+
+    /**
      * Constructor.
      *
      * @var string
@@ -49,6 +54,38 @@ class UploadHandler
         }
 
         $this->processors[$uploadType] = $processor;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAcceptedMimeTypes()
+    {
+        return $this->acceptedMimeTypes;
+    }
+
+    /**
+     * @param array $acceptedMimeTypes
+     */
+    public function setAcceptedMimeTypes($acceptedMimeTypes)
+    {
+        $this->acceptedMimeTypes = $acceptedMimeTypes;
+    }
+
+    /**
+     * @param array $acceptedMimeTypes
+     */
+    public function addAcceptedMimeTypes($acceptedMimeTypes)
+    {
+        $this->acceptedMimeTypes = array_replace($this->acceptedMimeTypes, $acceptedMimeTypes);
+    }
+
+    /**
+     * @param string $acceptedMimeType
+     */
+    public function addAcceptedMimeType($acceptedMimeType)
+    {
+        $this->acceptedMimeTypes[] = $acceptedMimeType;
     }
 
     /**

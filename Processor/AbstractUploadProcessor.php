@@ -7,9 +7,9 @@ use SRIO\RestUploadBundle\Exception\UploadProcessorException;
 use SRIO\RestUploadBundle\Model\UploadableFileInterface;
 use SRIO\RestUploadBundle\Request\RequestContentHandler;
 use SRIO\RestUploadBundle\Request\RequestContentHandlerInterface;
+use SRIO\RestUploadBundle\Storage\UploadedFile;
 use SRIO\RestUploadBundle\Upload\StorageHandler;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractUploadProcessor implements ProcessorInterface
@@ -35,6 +35,11 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
     protected $storageHandler;
 
     /**
+     * @var array
+     */
+    protected $acceptedMimeTypes = array();
+
+    /**
      * Constructor.
      *
      * @param StorageHandler $storageHandler
@@ -47,16 +52,18 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
     /**
      * Constructor.
      *
-     * @param Request       $request
+     * @param Request $request
      * @param FormInterface $form
-     * @param array         $config
+     * @param array $config
+     * @param array $acceptedMimeTypes
      *
      * @return bool
      */
-    public function handleUpload(Request $request, FormInterface $form = null, array $config = array())
+    public function handleUpload(Request $request, FormInterface $form = null, array $config = array(), $acceptedMimeTypes = array())
     {
         $this->form = $form;
         $this->config = $config;
+        $this->acceptedMimeTypes = $acceptedMimeTypes;
 
         return $this->handleRequest($request);
     }
