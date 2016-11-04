@@ -11,19 +11,43 @@ class StorageFactory
 {
     /**
      * Create the storage service.
+     * @param ContainerBuilder $container
+     * @param $id
+     * @param array $config
      */
     public function create(ContainerBuilder $container, $id, array $config)
     {
-        $adapterId = $config['filesystem'].'.adapter';
+        $this->createStorage($container, $id, $config);
+    }
+
+    /**
+     * Create the temp storage service.
+     * @param ContainerBuilder $container
+     * @param $id
+     * @param array $config
+     */
+    public function createTemp(ContainerBuilder $container, $id, array $config)
+    {
+        $this->createStorage($container, $id, $config, true);
+    }
+
+    protected function createStorage(ContainerBuilder $container, $id, array $config, $temp = false)
+    {
+        $adapterId = $config['filesystem'] . '.adapter';
+
+        $prefix = 'srio_rest_upload.storage';
+        if($temp) {
+            $prefix .= '.temp';
+        }
 
         if ($config['type'] === 'gaufrette') {
-            $adapterDefinition = new DefinitionDecorator('srio_rest_upload.storage.gaufrette_adapter');
+            $adapterDefinition = new DefinitionDecorator($prefix . '.gaufrette_adapter');
             $adapterDefinition->setPublic(false);
             $adapterDefinition->replaceArgument(0, new Reference($config['filesystem']));
 
             $container->setDefinition($adapterId, $adapterDefinition);
         } elseif ($config['type'] === 'flysystem') {
-            $adapterDefinition = new DefinitionDecorator('srio_rest_upload.storage.flysystem_adapter');
+            $adapterDefinition = new DefinitionDecorator($prefix . '.flysystem_adapter');
             $adapterDefinition->setPublic(false);
             $adapterDefinition->replaceArgument(0, new Reference($config['filesystem']));
 
@@ -35,7 +59,6 @@ class StorageFactory
             ->addArgument($config['name'])
             ->addArgument(new Reference($adapterId))
             ->addArgument(new Reference($config['storage_strategy']))
-            ->addArgument(new Reference($config['naming_strategy']))
-        ;
+            ->addArgument(new Reference($config['naming_strategy']));
     }
 }

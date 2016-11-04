@@ -35,11 +35,6 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
     protected $storageHandler;
 
     /**
-     * @var array
-     */
-    protected $acceptedMimeTypes = array();
-
-    /**
      * Constructor.
      *
      * @param StorageHandler $storageHandler
@@ -59,11 +54,10 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
      *
      * @return bool
      */
-    public function handleUpload(Request $request, FormInterface $form = null, array $config = array(), $acceptedMimeTypes = array())
+    public function handleUpload(Request $request, FormInterface $form = null, array $config = array())
     {
         $this->form = $form;
         $this->config = $config;
-        $this->acceptedMimeTypes = $acceptedMimeTypes;
 
         return $this->handleRequest($request);
     }

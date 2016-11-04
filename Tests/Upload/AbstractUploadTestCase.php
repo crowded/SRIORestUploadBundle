@@ -81,4 +81,19 @@ abstract class AbstractUploadTestCase extends WebTestCase
 
         return static::createClient($options, $server);
     }
+
+    /**
+     * Creates a Client with temporarily storage.
+     *
+     * @param array $options An array of options to pass to the createKernel class
+     * @param array $server  An array of server parameters
+     *
+     * @return Client A Client instance
+     */
+    protected function getNewTempClient(array $options = array(), array $server = array())
+    {
+        $options = array_merge(array('environment' => isset($_SERVER['TEST_FILESYSTEM']) ? strtolower($_SERVER['TEST_FILESYSTEM']).'_temp' : 'gaufrette_temp'), $options);
+
+        return static::createClient($options, $server);
+    }
 }

@@ -4,6 +4,7 @@ namespace SRIO\RestUploadBundle\Processor;
 
 use SRIO\RestUploadBundle\Storage\FileStorage;
 use SRIO\RestUploadBundle\Storage\FileAdapterInterface;
+use SRIO\RestUploadBundle\Storage\UploadedFile;
 use SRIO\RestUploadBundle\Upload\UploadContext;
 use SRIO\RestUploadBundle\Upload\UploadResult;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,32 +32,18 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
     protected $resumableEntity;
 
     /**
-     * @var FileStorage
-     */
-    protected $tempStorage;
-
-    /**
-     * @var int
-     */
-    protected $doTempOnMinBytes;
-
-    /**
      * Constructor.
      *
-     * @param StorageHandler $storageHandler
-     * @param EntityManager  $em
-     * @param string         $resumableEntity
-     * @param FileStorage    $tempStorage
-     * @param int            $doTempOnMinBytes
+     * @param \SRIO\RestUploadBundle\Upload\StorageHandler $storageHandler
+     * @param EntityManager                                $em
+     * @param string                                       $resumableEntity
      */
-    public function __construct(StorageHandler $storageHandler, EntityManager $em, $resumableEntity, FileStorage $tempStorage, $doTempOnMinBytes)
+    public function __construct(StorageHandler $storageHandler, EntityManager $em, $resumableEntity)
     {
         parent::__construct($storageHandler);
 
-        $this->em               = $em;
-        $this->resumableEntity  = $resumableEntity;
-        $this->tempStorage      = $tempStorage;
-        $this->doTempOnMinBytes = $doTempOnMinBytes;
+        $this->em = $em;
+        $this->resumableEntity = $resumableEntity;
     }
 
     /**
@@ -188,13 +175,12 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
 
         $context = new UploadContext();
         $context->setStorageName($uploadSession->getStorageName());
+        $file = $this->storageHandler->getFilesystem($context)->get($filePath);
+        $context->setFile(new UploadedFile(
+            $this->storageHandler->getStorage($context),
+            $file
+        ));
 
-        $filesystem = $this->storageHandler->getFilesystem($context);
-        if ($this->needsTempFile($uploadSession)) {
-            $filesystem = $this->tempStorage;
-            $filePath = $this->createTempName($uploadSession->getSessionId());
-        }
-        
         $contentLength = $request->headers->get('Content-Length');
         if ($request->headers->has('Content-Range')) {
             $range = $this->parseContentRange($request->headers->get('Content-Range'));
@@ -207,14 +193,15 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
                 ));
             } elseif ($range['start'] === '*') {
                 if ($contentLength == 0) {
-                    $file = $filesystem->get($filePath);
+                    $file = $this->storageHandler->getFilesystem($context)->get($filePath);
+
                     return $this->requestUploadStatus($context, $uploadSession, $file, $range);
                 }
 
                 throw new UploadProcessorException('Content-Length must be 0 if asking upload status');
             }
-            
-            $uploaded = $filesystem->getSize($filePath);
+
+            $uploaded = $this->storageHandler->getFilesystem($context)->getSize($filePath);
             if ($range['start'] != $uploaded) {
                 throw new UploadProcessorException(sprintf(
                     'Unable to start at %d while uploaded is %d',
@@ -226,14 +213,14 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
             $range = array(
                 'start' => 0,
                 'end' => $uploadSession->getContentLength() - 1,
-                'total' => $uploadSession->getContentLength() - 1
+                'total' => $uploadSession->getContentLength() - 1,
             );
         }
 
         // Handle upload from
         $handler = $this->getRequestContentHandler($request);
-        
-        $stream = $filesystem->getStreamCopy($filePath);
+        $stream = $this->storageHandler->getFilesystem($context)->getStreamCopy($filePath);
+
         fseek($stream, $range['start']);
         $wrote = 0;
         while (!$handler->eof()) {
@@ -244,22 +231,24 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
             }
         }
 
-        $filesystem->writeStream($filePath, $stream, array('overwrite' => true));
-        
         // Get file in context and its size
-        $file = $this->tempStorage->getFilesystem()->get($filePath);
+        $uploadedFile = $this->storageHandler->storeStream($context, $stream, array(
+            'metadata' => array(
+                FileStorage::METADATA_CONTENT_TYPE => $request->headers->get('X-Upload-Content-Type'),
+            ),
+        ), true);
+        fclose($stream);
+
+        $file = $uploadedFile->getFile();
         $size = $file->getSize();
 
         // If upload is completed, create the upload file, else
         // return like the request upload status
         if ($size < $uploadSession->getContentLength()) {
-            fclose($stream);
             return $this->requestUploadStatus($context, $uploadSession, $file, $range);
         } elseif ($size == $uploadSession->getContentLength()) {
-            rewind($stream);
-            return $this->handleCompletedUpload($context, $uploadSession, $stream);
+            return $this->handleCompletedUpload($context, $uploadSession, $file);
         } else {
-            $this->deleteTempFile($uploadSession);
             throw new UploadProcessorException('Written file size is greater that expected Content-Length');
         }
     }
@@ -269,10 +258,11 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
      *
      * @param \SRIO\RestUploadBundle\Upload\UploadContext $context
      * @param ResumableUploadSession                      $uploadSession
-     * @param resource                                    $completedStream
+     * @param FileAdapterInterface                        $file
+     *
      * @return UploadResult
      */
-    protected function handleCompletedUpload(UploadContext $context, ResumableUploadSession $uploadSession, $completedStream)
+    protected function handleCompletedUpload(UploadContext $context, ResumableUploadSession $uploadSession, FileAdapterInterface $file)
     {
         $result = new UploadResult();
         $result->setForm($this->form);
@@ -282,16 +272,14 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
             $formData = unserialize($uploadSession->getData());
             $this->form->submit($formData);
         }
-        
+
         if ($this->form == null || $this->form->isValid()) {
-            $uploadedFile = $this->storageHandler->storeStream($context, $completedStream, array(
-                'metadata' => array(
-                    FileStorage::METADATA_CONTENT_TYPE => $uploadSession->getContentType()
-                )
-            ));
-            fclose($completedStream);
-            $this->deleteTempFile($uploadSession);
-            $result->setStorageName($uploadedFile->getStorage()->getName());
+            // Create the uploaded file
+            $uploadedFile = new UploadedFile(
+                $this->storageHandler->getStorage($context),
+                $file
+            );
+
             $result->setFile($uploadedFile);
         }
 
@@ -354,7 +342,7 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
         $range = array(
             'start' => $matches[1] === '*' ? '*' : ($matches[2] === '' ? null : (int) $matches[2]),
             'end' => $matches[3] === '' ? null : (int) $matches[3],
-            'total' => (int) $matches[4]
+            'total' => (int) $matches[4],
         );
 
         if (empty($range['total'])) {
@@ -374,7 +362,7 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
 
         return $range;
     }
-    
+
     /**
      * Get resumable upload session entity repository.
      *
@@ -385,40 +373,6 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
         return $this->em->getRepository($this->resumableEntity);
     }
 
-    /**
-     * @param ResumableUploadSession $uploadSession
-     *
-     * @return bool
-     */
-    protected function needsTempFile(ResumableUploadSession $uploadSession)
-    {
-        return $this->doTempOnMinBytes >= $uploadSession->getContentLength();
-    }
-
-    /**
-     * Delete temp file.
-     *
-     * @param ResumableUploadSession $uploadSession
-     *
-     * @return bool
-     */
-    protected function deleteTempFile(ResumableUploadSession $uploadSession)
-    {
-        return $this->tempStorage->getFilesystem()->delete($this->createTempName($uploadSession->getSessionId()));
-    }
-    
-    /**
-     * Create temp file name.
-     * 
-     * @param $sessionId
-     *
-     * @return string
-     */
-    protected function createTempName($sessionId)
-    {
-        return $sessionId . 'tmp';
-    }
-    
     /**
      * Create a session ID.
      */

@@ -5,6 +5,7 @@ namespace SRIO\RestUploadBundle\Upload;
 use SRIO\RestUploadBundle\Exception\UploadException;
 use SRIO\RestUploadBundle\Storage\FileStorage;
 use SRIO\RestUploadBundle\Storage\FilesystemAdapterInterface;
+use SRIO\RestUploadBundle\Storage\Local\TempFilesystemInterface;
 use SRIO\RestUploadBundle\Storage\UploadedFile;
 use SRIO\RestUploadBundle\Voter\StorageVoter;
 
@@ -19,20 +20,27 @@ class StorageHandler
     protected $voter;
 
     /**
+     * @var TempFilesystemInterface
+     */
+    protected $tempStorage;
+
+    /**
      * Constructor.
      *
      * @param StorageVoter $voter
+     * @param FileStorage $localStorage
      */
-    public function __construct(StorageVoter $voter)
+    public function __construct(StorageVoter $voter, FileStorage $localStorage = null)
     {
         $this->voter = $voter;
+        $this->tempStorage = $localStorage;
     }
 
     /**
      * Store a file's content.
      *
      * @param UploadContext $context
-     * @param string        $content
+     * @param string        $contents
      * @param array         $config
      * @param bool          $overwrite
      *
@@ -66,17 +74,35 @@ class StorageHandler
         return $this->getStorage($context)->getFilesystem();
     }
 
+    public function finishStore(UploadContext $context)
+    {
+        if(!is_null($this->tempStorage)) {
+            $file = $this->tempStorage->getFilesystem()->get($context->getFile()->getFile()->getName());
+            $uploadedFile = $this->getStorage($context, true)->store($context, $file->getFile());
+
+            $context->setFile($uploadedFile);
+
+            return $uploadedFile;
+        }else{
+            return $context->getFile();
+        }
+    }
+
     /**
      * Get storage by upload context.
      *
      * @param UploadContext $context
      *
+     * @param bool $nonLocal
      * @return FileStorage
-     *
-     * @throws \SRIO\RestUploadBundle\Exception\UploadException
+     * @throws UploadException
      */
-    public function getStorage(UploadContext $context)
+    public function getStorage(UploadContext $context, $nonTemp = false)
     {
+        if(!is_null($this->tempStorage) && !$nonTemp) {
+            return $this->tempStorage;
+        }
+
         $storage = $this->voter->getStorage($context);
         if (!$storage instanceof FileStorage) {
             throw new UploadException('Storage returned by voter isn\'t instanceof FileStorage');
