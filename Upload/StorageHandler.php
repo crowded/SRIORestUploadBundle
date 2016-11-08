@@ -20,7 +20,7 @@ class StorageHandler
     protected $voter;
 
     /**
-     * @var TempFilesystemInterface
+     * @var FileStorage
      */
     protected $tempStorage;
 
@@ -74,14 +74,25 @@ class StorageHandler
         return $this->getStorage($context)->getFilesystem();
     }
 
+    /**
+     * Finishes the storage procedure. When a temp filesystem was used the file is moved from temp to the actual filesystem
+     *
+     * @param UploadContext $context
+     *
+     * @return UploadedFile
+     */
     public function finishStore(UploadContext $context)
     {
         if(!is_null($this->tempStorage)) {
-            $stream = $this->tempStorage->getFilesystem()->readStream($context->getFile()->getFile()->getName());
+            $tempFileName = $context->getFile()->getFile()->getName();
+            $stream = $this->tempStorage->getFilesystem()->readStream($tempFileName);
             rewind($stream);
+
             $uploadedFile = $this->getStorage($context, true)->storeStream($context, $stream);
 
             $context->setFile($uploadedFile);
+
+            $this->tempStorage->getFilesystem()->delete($tempFileName);
 
             return $uploadedFile;
         }else{
@@ -101,7 +112,7 @@ class StorageHandler
     public function getStorage(UploadContext $context, $nonTemp = false)
     {
         if(!is_null($this->tempStorage) && !$nonTemp) {
-            $storage = $this->tempStorage;
+            $storage = $this->getTempStorage();
         }else{
             $storage = $this->voter->getStorage($context);
         }
@@ -111,5 +122,15 @@ class StorageHandler
         }
 
         return $storage;
+    }
+
+    /**
+     * Returns the temp storage
+     *
+     * @return FileStorage
+     */
+    public function getTempStorage()
+    {
+        return $this->tempStorage;
     }
 }

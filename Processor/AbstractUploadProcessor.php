@@ -92,10 +92,10 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
      */
     protected function checkMimeType(FileAdapterInterface $file, FilesystemAdapterInterface $filesystem)
     {
-        $mimeType = $filesystem->getMimeType($file->getFile()->getName());
+        $mimeType = $filesystem->getMimeType($file->getName());
 
         if (!is_null($this->acceptedMimeTypes) && !in_array($mimeType, $this->acceptedMimeTypes)) {
-            $filesystem->delete($file->getFile()->getName());
+            $filesystem->delete($file->getName());
             throw new UploadException(sprintf('Mime-type %s is not accepted', $mimeType));
         }
     }

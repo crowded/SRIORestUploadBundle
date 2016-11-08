@@ -135,9 +135,9 @@ class ResumableUploadTest extends AbstractUploadTestCase
 
         $response = $client->getResponse();
         $location = $response->headers->get('Location');
-        $content = $this->getResource($client, 'apple.gif');
+        $content = $this->getResource($client, 'lorem.txt');
         $client->request('PUT', $location, array(), array(), array(
-            'CONTENT_TYPE' => 'image/gif',
+            'CONTENT_TYPE' => 'text/plain',
             'CONTENT_LENGTH' => strlen($content),
         ), $content);
 
@@ -150,7 +150,7 @@ class ResumableUploadTest extends AbstractUploadTestCase
 
         $response = $client->getResponse();
         $location = $response->headers->get('Location');
-        $content = $this->getResource($client, 'apple.gif');
+        $content = $this->getResource($client, 'lorem.txt');
         $client->request('PUT', $location, array(), array(), array(
             'CONTENT_TYPE' => 'image/gif',
             'CONTENT_LENGTH' => strlen($content),
@@ -176,7 +176,7 @@ class ResumableUploadTest extends AbstractUploadTestCase
         $mimetypes = 'text/plain';
         $client = $this->startSession($this->getNewTempClient(), $resource, $mimetypes);
 
-        $content = $this->chunkedUpload($client, $resource, $mimetypes);
+        $this->chunkedUpload($client, $resource, $mimetypes);
 
         $this->assertResponseHasErrors($client);
     }
@@ -187,7 +187,7 @@ class ResumableUploadTest extends AbstractUploadTestCase
         $mimetypes = 'image/gif';
         $client = $this->startSession($this->getNewTempClient(), $resource, $mimetypes);
 
-        $content = $this->chunkedUpload($client, $resource, $mimetypes);
+        $this->chunkedUpload($client, $resource, $mimetypes);
 
         $this->assertResponseHasErrors($client);
     }
