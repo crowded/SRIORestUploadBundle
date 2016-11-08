@@ -7,6 +7,8 @@ use SRIO\RestUploadBundle\Exception\UploadProcessorException;
 use SRIO\RestUploadBundle\Model\UploadableFileInterface;
 use SRIO\RestUploadBundle\Request\RequestContentHandler;
 use SRIO\RestUploadBundle\Request\RequestContentHandlerInterface;
+use SRIO\RestUploadBundle\Storage\FileAdapterInterface;
+use SRIO\RestUploadBundle\Storage\FilesystemAdapterInterface;
 use SRIO\RestUploadBundle\Storage\UploadedFile;
 use SRIO\RestUploadBundle\Upload\StorageHandler;
 use Symfony\Component\Form\FormInterface;
@@ -80,11 +82,20 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
      */
     abstract public function handleRequest(Request $request);
 
-    protected function checkMimeType(UploadedFile $file)
+    /**
+     * Checks if the file is one of the desired mime types if these mime types are set.
+     *
+     * @param FileAdapterInterface       $file
+     * @param FilesystemAdapterInterface $filesystem
+     *
+     * @throws UploadException
+     */
+    protected function checkMimeType(FileAdapterInterface $file, FilesystemAdapterInterface $filesystem)
     {
-        $mimeType = $file->getStorage()->getFilesystem()->getMimeType($file->getFile()->getName());
+        $mimeType = $filesystem->getMimeType($file->getFile()->getName());
 
         if (!is_null($this->acceptedMimeTypes) && !in_array($mimeType, $this->acceptedMimeTypes)) {
+            $filesystem->delete($file->getFile()->getName());
             throw new UploadException(sprintf('Mime-type %s is not accepted', $mimeType));
         }
     }

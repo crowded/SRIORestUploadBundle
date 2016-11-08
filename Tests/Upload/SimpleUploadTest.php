@@ -71,14 +71,14 @@ class SimpleUploadTest extends AbstractUploadTestCase
         $this->assertNotEmpty($jsonContent['id']);
     }
 
-    public function testSimpleUploadWithNotAcceptedMimeType()
+    public function testSimpleUploadWithUnacceptedMimeType()
     {
         $client = $this->getNewTempClient();
         $queryParameters = array('uploadType' => 'simple', 'name' => 'test');
 
-        $content = $this->getResource($client, 'apple.gif');
+        $content = $this->getResource($client, 'lorem.txt');
         $client->request('POST', '/upload?'.http_build_query($queryParameters), array(), array(), array(
-            'CONTENT_TYPE' => 'image/gif',
+            'CONTENT_TYPE' => 'text/plain',
             'CONTENT_LENGTH' => strlen($content),
         ), $content);
 
@@ -87,14 +87,14 @@ class SimpleUploadTest extends AbstractUploadTestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    public function testSimpleUploadWithNotAcceptedMimeTypeWithAcceptedContentType()
+    public function testSimpleUploadWithUnacceptedMimeTypeWithAcceptedContentType()
     {
         $client = $this->getNewTempClient();
         $queryParameters = array('uploadType' => 'simple', 'name' => 'test');
 
-        $content = $this->getResource($client, 'apple.gif');
+        $content = $this->getResource($client, 'lorem.txt');
         $client->request('POST', '/upload?'.http_build_query($queryParameters), array(), array(), array(
-            'CONTENT_TYPE' => 'text/plain',
+            'CONTENT_TYPE' => 'image/gif',
             'CONTENT_LENGTH' => strlen($content),
         ), $content);
 
@@ -108,9 +108,9 @@ class SimpleUploadTest extends AbstractUploadTestCase
         $client = $this->getNewTempClient();
         $queryParameters = array('uploadType' => 'simple', 'name' => 'test');
 
-        $content = $this->getResource($client, 'lorem.txt');
+        $content = $this->getResource($client, 'apple.gif');
         $client->request('POST', '/upload?'.http_build_query($queryParameters), array(), array(), array(
-            'CONTENT_TYPE' => 'text/plain',
+            'CONTENT_TYPE' => 'image/gif',
             'CONTENT_LENGTH' => strlen($content),
         ), $content);
 

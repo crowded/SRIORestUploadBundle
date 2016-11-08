@@ -282,6 +282,8 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
 
             $result->setFile($uploadedFile);
 
+            $this->checkMimeType($file, $this->storageHandler->getStorage($context)->getFilesystem());
+
             $this->storageHandler->finishStore($result);
         }
 

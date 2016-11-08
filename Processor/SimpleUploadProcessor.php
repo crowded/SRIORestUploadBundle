@@ -50,7 +50,7 @@ class SimpleUploadProcessor extends AbstractUploadProcessor
 
             $result->setFile($file);
 
-            $this->checkMimeType($file);
+            $this->checkMimeType($file->getFile(), $file->getStorage()->getFilesystem());
 
             $this->storageHandler->finishStore($result);
         }
