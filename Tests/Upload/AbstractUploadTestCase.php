@@ -92,7 +92,7 @@ abstract class AbstractUploadTestCase extends WebTestCase
      */
     protected function getNewTempClient(array $options = array(), array $server = array())
     {
-        $options = array_merge(array('environment' => isset($_SERVER['TEST_FILESYSTEM']) ? strtolower($_SERVER['TEST_FILESYSTEM']).'_temp' : 'gaufrette'), $options);
+        $options = array_merge(array('environment' => isset($_SERVER['TEST_FILESYSTEM']) ? strtolower($_SERVER['TEST_FILESYSTEM']).'_temp' : 'gaufrette_temp'), $options);
 
         return static::createClient($options, $server);
     }

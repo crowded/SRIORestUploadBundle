@@ -38,6 +38,7 @@ class StorageFactory
         $prefix = 'srio_rest_upload.storage';
         if($temp) {
             $prefix .= '.temp';
+            $adapterId .= '.temp';
         }
 
         if ($config['type'] === 'gaufrette') {

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace SRIO\RestUploadBundle\Storage\Local;
+namespace SRIO\RestUploadBundle\Storage\Temp;
 
 
 use League\Flysystem\Adapter\Local;
@@ -29,6 +29,4 @@ class FlysystemTempFilesystemAdapter extends FlysystemFilesystemAdapter implemen
 
         return MimeTypeGuesser::getInstance()->guess($fullPath);
     }
-
-
 }

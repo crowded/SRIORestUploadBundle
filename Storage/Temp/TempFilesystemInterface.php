@@ -1,7 +1,7 @@
 <?php
 
 
-namespace SRIO\RestUploadBundle\Storage\Local;
+namespace SRIO\RestUploadBundle\Storage\Temp;
 
 
 use SRIO\RestUploadBundle\Storage\FilesystemAdapterInterface;

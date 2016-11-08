@@ -35,6 +35,11 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
     protected $storageHandler;
 
     /**
+     * @var array
+     */
+    protected $acceptedMimeTypes = array();
+
+    /**
      * Constructor.
      *
      * @param StorageHandler $storageHandler
@@ -54,10 +59,11 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
      *
      * @return bool
      */
-    public function handleUpload(Request $request, FormInterface $form = null, array $config = array())
+    public function handleUpload(Request $request, FormInterface $form = null, array $config = array(), $acceptedMimeTypes = null)
     {
         $this->form = $form;
         $this->config = $config;
+        $this->acceptedMimeTypes = $acceptedMimeTypes;
 
         return $this->handleRequest($request);
     }
@@ -73,6 +79,15 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
      * @return \SRIO\RestUploadBundle\Upload\UploadResult
      */
     abstract public function handleRequest(Request $request);
+
+    protected function checkMimeType(UploadedFile $file)
+    {
+        $mimeType = $file->getStorage()->getFilesystem()->getMimeType($file->getFile()->getName());
+
+        if (!is_null($this->acceptedMimeTypes) && !in_array($mimeType, $this->acceptedMimeTypes)) {
+            throw new UploadException(sprintf('Mime-type %s is not accepted', $mimeType));
+        }
+    }
 
     /**
      * Create the form data that the form will be able to handle.

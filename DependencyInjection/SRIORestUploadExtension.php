@@ -40,6 +40,7 @@ class SRIORestUploadExtension extends Extension
         $loader->load('storage.xml');
 
         if (isset($config['temp_storage'])) $this->createTempStorage($factory, $container, $config['temp_storage']);
+        if (isset($config['accepted_mime_types']) && is_array($config['accepted_mime_types']) && count($config['accepted_mime_types']) > 0) $this->setAcceptedMimeTypes($container, $config['accepted_mime_types']);
 
         $this->createStorageServices($factory, $container, $config['storages']);
     }
@@ -96,14 +97,20 @@ class SRIORestUploadExtension extends Extension
 
     private function createTempStorage(StorageFactory $factory, ContainerBuilder $container, $local_storage_adapter)
     {
-        if (count($local_storage_adapter) > 0) {
+        if (isset($local_storage_adapter['type']) && isset($local_storage_adapter['filesystem'])) {
             $id = 'srio_rest_upload.temp.storage';
 
-            $factory->createTemp($container, $id, array_replace(['name' => 'local'], $local_storage_adapter));
+            $factory->createTemp($container, $id, array_replace(['name' => 'temp.local'], $local_storage_adapter));
 
             $storageHandler = $container->getDefinition('srio_rest_upload.storage_handler');
 
             $storageHandler->replaceArgument(1, new Reference($id));
         }
+    }
+
+    private function setAcceptedMimeTypes(ContainerBuilder $container, $accepted_mime_types)
+    {
+        $uploadHandler = $container->getDefinition('srio_rest_upload.upload_handler');
+        $uploadHandler->replaceArgument(1, $accepted_mime_types);
     }
 }

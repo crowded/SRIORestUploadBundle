@@ -49,18 +49,28 @@ knp_gaufrette:
         test:
             local:
                 directory: %kernel.root_dir%/../web/uploads
+        temp:
+            local:
+                directory: %kernel.root_dir%/../web/uploads/temp
     filesystems:
         test:
             adapter: test
+        temp:
+            adapter: temp
 
 oneup_flysystem:
     adapters:
         test:
             local:
                 directory: %kernel.root_dir%/../web/uploads
+        temp:
+            local:
+                directory: %kernel.root_dir%/../web/uploads/temp
     filesystems:
         test:
             adapter: test
+        temp:
+            adapter: temp
 
 # RestUploadBundle configuration
 srio_rest_upload:

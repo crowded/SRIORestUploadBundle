@@ -17,10 +17,10 @@
         <service id="srio_rest_upload.storage.gaufrette_adapter" class="%srio_rest_upload.gaufrette_adapter.class%" abstract="true">
             <argument>null</argument>
         </service>
-        <service id="srio_rest_upload.temp.storage.flysystem_adapter" class="%srio_rest_upload.temp.flysystem_adapter.class%" abstract="true">
+        <service id="srio_rest_upload.storage.temp.flysystem_adapter" class="%srio_rest_upload.temp.flysystem_adapter.class%" abstract="true">
             <argument>null</argument>
         </service>
-        <service id="srio_rest_upload.temp.storage.gaufrette_adapter" class="%srio_rest_upload.temp.gaufrette_adapter.class%" abstract="true">
+        <service id="srio_rest_upload.storage.temp.gaufrette_adapter" class="%srio_rest_upload.temp.gaufrette_adapter.class%" abstract="true">
             <argument>null</argument>
         </service>
     </services>

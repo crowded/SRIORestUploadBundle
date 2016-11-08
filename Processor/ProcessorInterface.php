@@ -13,11 +13,12 @@ interface ProcessorInterface
     /**
      * Handle the upload request.
      *
-     * @param Request       $request
+     * @param Request $request
      * @param FormInterface $form
-     * @param array         $options
+     * @param array $options
      *
+     * @param array $acceptedMimeTypes
      * @return \SRIO\RestUploadBundle\Upload\UploadResult
      */
-    public function handleUpload(Request $request, FormInterface $form = null, array $options = array());
+    public function handleUpload(Request $request, FormInterface $form = null, array $options = array(), $acceptedMimeTypes = null);
 }

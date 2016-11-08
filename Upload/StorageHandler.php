@@ -77,8 +77,8 @@ class StorageHandler
     public function finishStore(UploadContext $context)
     {
         if(!is_null($this->tempStorage)) {
-            $file = $this->tempStorage->getFilesystem()->get($context->getFile()->getFile()->getName());
-            $uploadedFile = $this->getStorage($context, true)->store($context, $file->getFile());
+            $stream = $this->tempStorage->getFilesystem()->getStreamCopy($context->getFile()->getFile()->getName());
+            $uploadedFile = $this->getStorage($context, true)->storeStream($context, $stream);
 
             $context->setFile($uploadedFile);
 

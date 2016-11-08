@@ -32,7 +32,7 @@ class UploadHandler
      * @param $uploadTypeParameter
      * @param array $acceptedMimeTypes
      */
-    public function __construct($uploadTypeParameter, $acceptedMimeTypes = array())
+    public function __construct($uploadTypeParameter, $acceptedMimeTypes = null)
     {
         $this->uploadTypeParameter = $uploadTypeParameter;
         $this->acceptedMimeTypes = $acceptedMimeTypes;
@@ -106,7 +106,7 @@ class UploadHandler
         try {
             $processor = $this->getProcessor($request, $config);
 
-            return $processor->handleUpload($request, $form, $config);
+            return $processor->handleUpload($request, $form, $config, $this->acceptedMimeTypes);
         } catch (UploadException $e) {
             if ($form != null) {
                 $form->addError(new FormError($e->getMessage()));

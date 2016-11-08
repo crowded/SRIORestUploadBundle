@@ -22,6 +22,9 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->arrayNode('accepted_mime_types')
+                    ->prototype('scalar')->end()
+                ->end()
                 ->arrayNode('temp_storage')
                     ->children()
                         ->enumNode('type')

@@ -12,6 +12,7 @@
     <services>
         <service id="srio_rest_upload.upload_handler" class="%srio_rest_upload.upload_handler.class%">
             <argument>%srio_rest_upload.upload_type_parameter%</argument>
+            <argument>null</argument>
         </service>
         <service id="srio_rest_upload.storage_handler" class="%srio_rest_upload.storage_handler.class%">
             <argument type="service" id="srio_rest_upload.storage_voter" />

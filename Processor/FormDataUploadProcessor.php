@@ -16,14 +16,14 @@ class FormDataUploadProcessor extends SimpleUploadProcessor
     /**
      * {@inheritdoc}
      */
-    public function handleUpload(Request $request, FormInterface $form = null, array $config = array())
+    public function handleUpload(Request $request, FormInterface $form = null, array $config = array(), $acceptedMimeTypes = null)
     {
         $config = array_merge(array(
             self::KEY_FIELD_FILE => 'file',
             self::KEY_FIELD_FORM => 'form',
         ), $config);
 
-        return parent::handleUpload($request, $form, $config);
+        return parent::handleUpload($request, $form, $config, $acceptedMimeTypes);
     }
 
     /**
