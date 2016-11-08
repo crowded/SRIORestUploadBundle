@@ -6,10 +6,12 @@
     <parameters>
         <parameter key="srio_rest_upload.storage.default_strategy.class">SRIO\RestUploadBundle\Strategy\DefaultStorageStrategy</parameter>
         <parameter key="srio_rest_upload.naming.default_strategy.class">SRIO\RestUploadBundle\Strategy\DefaultNamingStrategy</parameter>
+        <parameter key="srio_rest_upload.naming.temp_strategy.class">SRIO\RestUploadBundle\Strategy\TempNamingStrategy</parameter>
     </parameters>
 
     <services>
         <service id="srio_rest_upload.storage.default_strategy" class="%srio_rest_upload.storage.default_strategy.class%" />
         <service id="srio_rest_upload.naming.default_strategy" class="%srio_rest_upload.naming.default_strategy.class%" />
+        <service id="srio_rest_upload.naming.temp_strategy" class="%srio_rest_upload.naming.temp_strategy.class%" />
     </services>
 </container>
