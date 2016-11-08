@@ -29,11 +29,13 @@ class UploadHandler
     /**
      * Constructor.
      *
-     * @var string
+     * @param $uploadTypeParameter
+     * @param array $acceptedMimeTypes
      */
-    public function __construct($uploadTypeParameter)
+    public function __construct($uploadTypeParameter, $acceptedMimeTypes = array())
     {
         $this->uploadTypeParameter = $uploadTypeParameter;
+        $this->acceptedMimeTypes = $acceptedMimeTypes;
     }
 
     /**

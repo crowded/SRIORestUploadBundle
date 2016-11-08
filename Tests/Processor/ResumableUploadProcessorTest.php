@@ -50,7 +50,7 @@ class ResumableUploadProcessorTest extends AbstractProcessorTestCase
 
         $method = $this->getMethod('\SRIO\RestUploadBundle\Processor\ResumableUploadProcessor', 'parseContentRange');
         $em = $this->getMockEntityManager();
-        $uploadProcessor = new ResumableUploadProcessor($storageHandler, $em, 'SRIO\RestUploadBundle\Tests\Fixtures\Entity\ResumableUploadSession', null, 0);
+        $uploadProcessor = new ResumableUploadProcessor($storageHandler, $em, 'SRIO\RestUploadBundle\Tests\Fixtures\Entity\ResumableUploadSession');
 
         return $method->invokeArgs($uploadProcessor, array($string));
     }

@@ -49,6 +49,8 @@ class SimpleUploadProcessor extends AbstractUploadProcessor
             ));
 
             $result->setFile($file);
+
+            $this->storageHandler->finishStore($result);
         }
 
         return $result;

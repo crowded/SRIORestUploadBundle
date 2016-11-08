@@ -281,6 +281,8 @@ class ResumableUploadProcessor extends AbstractUploadProcessor
             );
 
             $result->setFile($uploadedFile);
+
+            $this->storageHandler->finishStore($result);
         }
 
         return $result;

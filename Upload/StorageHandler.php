@@ -93,17 +93,18 @@ class StorageHandler
      *
      * @param UploadContext $context
      *
-     * @param bool $nonLocal
+     * @param bool $nonTemp
      * @return FileStorage
      * @throws UploadException
      */
     public function getStorage(UploadContext $context, $nonTemp = false)
     {
         if(!is_null($this->tempStorage) && !$nonTemp) {
-            return $this->tempStorage;
+            $storage = $this->tempStorage;
+        }else{
+            $storage = $this->voter->getStorage($context);
         }
 
-        $storage = $this->voter->getStorage($context);
         if (!$storage instanceof FileStorage) {
             throw new UploadException('Storage returned by voter isn\'t instanceof FileStorage');
         }

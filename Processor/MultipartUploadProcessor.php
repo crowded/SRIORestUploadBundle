@@ -48,6 +48,7 @@ class MultipartUploadProcessor extends AbstractUploadProcessor
             ));
 
             $result->setFile($file);
+            $this->storageHandler->finishStore($result);
         }
 
         return $result;

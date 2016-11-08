@@ -85,6 +85,8 @@ class FormDataUploadProcessor extends SimpleUploadProcessor
 
         $response->setFile($file);
 
+        $this->storageHandler->finishStore($response);
+
         return $response;
     }
 }
