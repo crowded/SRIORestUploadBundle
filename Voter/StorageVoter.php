@@ -71,10 +71,6 @@ class StorageVoter
      */
     public function getStorage(UploadContext $context)
     {
-        if (count($this->storages) == 0) {
-            throw new UploadException('No storage found');
-        }
-
         if(!is_null($this->tempStorage) && $context->isUnfinished()) {
             return $this->getTempStorage();
         }
@@ -84,6 +80,10 @@ class StorageVoter
 
     protected function getFinishedStorage(UploadContext $context)
     {
+        if (count($this->storages) == 0) {
+            throw new UploadException('No storage found');
+        }
+        
         if (($storageName = $context->getStorageName()) !== null
             || (($storageName = $this->defaultStorage) !== null)) {
             if (!array_key_exists($storageName, $this->storages)) {
