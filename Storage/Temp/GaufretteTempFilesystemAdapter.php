@@ -18,7 +18,7 @@ class GaufretteTempFilesystemAdapter extends GaufretteFilesystemAdapter implemen
     public function __construct(Filesystem $filesystem)
     {
         if (!($filesystem->getAdapter() instanceof Local)) {
-            throw new \LogicException("Local filesystem has no local adapter");
+            throw new \LogicException("The configured temporarily filesystem has no local filesystem adapter");
         }
 
         parent::__construct($filesystem);
