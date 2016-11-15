@@ -22,20 +22,13 @@ class UploadHandler
     protected $processors = array();
 
     /**
-     * @var array
-     */
-    protected $acceptedMimeTypes = array();
-
-    /**
      * Constructor.
      *
      * @param $uploadTypeParameter
-     * @param array $acceptedMimeTypes
      */
-    public function __construct($uploadTypeParameter, $acceptedMimeTypes = null)
+    public function __construct($uploadTypeParameter)
     {
         $this->uploadTypeParameter = $uploadTypeParameter;
-        $this->acceptedMimeTypes = $acceptedMimeTypes;
     }
 
     /**
@@ -59,38 +52,6 @@ class UploadHandler
     }
 
     /**
-     * @return array
-     */
-    public function getAcceptedMimeTypes()
-    {
-        return $this->acceptedMimeTypes;
-    }
-
-    /**
-     * @param array $acceptedMimeTypes
-     */
-    public function setAcceptedMimeTypes($acceptedMimeTypes)
-    {
-        $this->acceptedMimeTypes = $acceptedMimeTypes;
-    }
-
-    /**
-     * @param array $acceptedMimeTypes
-     */
-    public function addAcceptedMimeTypes($acceptedMimeTypes)
-    {
-        $this->acceptedMimeTypes = array_replace($this->acceptedMimeTypes, $acceptedMimeTypes);
-    }
-
-    /**
-     * @param string $acceptedMimeType
-     */
-    public function addAcceptedMimeType($acceptedMimeType)
-    {
-        $this->acceptedMimeTypes[] = $acceptedMimeType;
-    }
-
-    /**
      * Handle the upload request.
      *
      * @param Request                               $request
@@ -106,7 +67,7 @@ class UploadHandler
         try {
             $processor = $this->getProcessor($request, $config);
 
-            return $processor->handleUpload($request, $form, $config, $this->acceptedMimeTypes);
+            return $processor->handleUpload($request, $form, $config);
         } catch (UploadException $e) {
             if ($form != null) {
                 $form->addError(new FormError($e->getMessage()));

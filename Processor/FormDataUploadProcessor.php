@@ -16,14 +16,14 @@ class FormDataUploadProcessor extends SimpleUploadProcessor
     /**
      * {@inheritdoc}
      */
-    public function handleUpload(Request $request, FormInterface $form = null, array $config = array(), $acceptedMimeTypes = null)
+    public function handleUpload(Request $request, FormInterface $form = null, array $config = array())
     {
         $config = array_merge(array(
             self::KEY_FIELD_FILE => 'file',
             self::KEY_FIELD_FORM => 'form',
         ), $config);
 
-        return parent::handleUpload($request, $form, $config, $acceptedMimeTypes);
+        return parent::handleUpload($request, $form, $config);
     }
 
     /**
@@ -84,8 +84,6 @@ class FormDataUploadProcessor extends SimpleUploadProcessor
         ));
 
         $response->setFile($file);
-
-        $this->checkMimeType($file->getFile(), $file->getStorage()->getFilesystem());
 
         $this->storageHandler->finishStore($response);
 

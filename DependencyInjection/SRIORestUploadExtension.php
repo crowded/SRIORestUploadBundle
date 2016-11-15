@@ -40,7 +40,6 @@ class SRIORestUploadExtension extends Extension
         $loader->load('storage.xml');
 
         if (isset($config['temp_storage'])) $this->createTempStorage($factory, $container, $config['temp_storage']);
-        if (isset($config['accepted_mime_types']) && is_array($config['accepted_mime_types']) && count($config['accepted_mime_types']) > 0) $this->setAcceptedMimeTypes($container, $config['accepted_mime_types']);
 
         $this->createStorageServices($factory, $container, $config['storages']);
     }
@@ -106,11 +105,5 @@ class SRIORestUploadExtension extends Extension
 
             $storageHandler->replaceArgument(1, new Reference($id));
         }
-    }
-
-    private function setAcceptedMimeTypes(ContainerBuilder $container, $accepted_mime_types)
-    {
-        $uploadHandler = $container->getDefinition('srio_rest_upload.upload_handler');
-        $uploadHandler->replaceArgument(1, $accepted_mime_types);
     }
 }

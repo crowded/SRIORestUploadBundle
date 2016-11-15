@@ -83,6 +83,8 @@ class StorageHandler
      */
     public function finishStore(UploadContext $context)
     {
+        $this->checkMimeType($context);
+
         if(!is_null($this->tempStorage)) {
             $tempFileName = $context->getFile()->getFile()->getName();
             $stream = $this->tempStorage->getFilesystem()->readStream($tempFileName);
@@ -97,6 +99,26 @@ class StorageHandler
             return $uploadedFile;
         }else{
             return $context->getFile();
+        }
+    }
+
+    /**
+     * Checks if the file is one of the desired mime types if these mime types are set.
+     *
+     * @param UploadContext $context
+     *
+     * @throws UploadException
+     */
+    protected function checkMimeType(UploadContext $context)
+    {
+        $fileStorage = $this->getStorage($context, true);
+        $filesystem = $this->getStorage($context)->getFilesystem();
+        $file = $context->getFile()->getFile();
+        $mimeType = $filesystem->getMimeType($file->getName());
+
+        if (!is_null($fileStorage->getAcceptedMimeTypes()) && count($fileStorage->getAcceptedMimeTypes()) > 0 && !in_array($mimeType, $fileStorage->getAcceptedMimeTypes())) {
+            $filesystem->delete($file->getName());
+            throw new UploadException(sprintf('Mime-type %s is not accepted', $mimeType));
         }
     }
 

@@ -22,9 +22,6 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->arrayNode('accepted_mime_types')
-                    ->prototype('scalar')->end()
-                ->end()
                 ->arrayNode('temp_storage')
                     ->children()
                         ->enumNode('type')
@@ -47,6 +44,9 @@ class Configuration implements ConfigurationInterface
                             ->enumNode('type')
                                 ->values(array('gaufrette', 'flysystem'))
                                 ->defaultValue('gaufrette')
+                            ->end()
+                            ->arrayNode('accepted_mime_types')
+                                ->prototype('scalar')->end()
                             ->end()
                             ->scalarNode('filesystem')->isRequired()->end()
                             ->scalarNode('naming_strategy')

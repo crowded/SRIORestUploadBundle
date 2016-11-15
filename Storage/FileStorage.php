@@ -31,19 +31,26 @@ class FileStorage
     protected $namingStrategy;
 
     /**
+     * @var array
+     */
+    protected $acceptedMimeTypes = array();
+
+    /**
      * Constructor.
      *
      * @param                            $name
      * @param FilesystemAdapterInterface $filesystem
      * @param StorageStrategy            $storageStrategy
      * @param NamingStrategy             $namingStrategy
+     * @param array                      $acceptedMimeTypes
      */
-    public function __construct($name, FilesystemAdapterInterface $filesystem, StorageStrategy $storageStrategy, NamingStrategy $namingStrategy)
+    public function __construct($name, FilesystemAdapterInterface $filesystem, StorageStrategy $storageStrategy, NamingStrategy $namingStrategy, $acceptedMimeTypes = array())
     {
         $this->name = $name;
         $this->filesystem = $filesystem;
         $this->storageStrategy = $storageStrategy;
         $this->namingStrategy = $namingStrategy;
+        $this->acceptedMimeTypes = $acceptedMimeTypes;
     }
 
     /**
@@ -142,5 +149,38 @@ class FileStorage
     public function getStorageStrategy()
     {
         return $this->storageStrategy;
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getAcceptedMimeTypes()
+    {
+        return $this->acceptedMimeTypes;
+    }
+
+    /**
+     * @param array $acceptedMimeTypes
+     */
+    public function setAcceptedMimeTypes($acceptedMimeTypes)
+    {
+        $this->acceptedMimeTypes = $acceptedMimeTypes;
+    }
+
+    /**
+     * @param array $acceptedMimeTypes
+     */
+    public function addAcceptedMimeTypes($acceptedMimeTypes)
+    {
+        $this->acceptedMimeTypes = array_replace($this->acceptedMimeTypes, $acceptedMimeTypes);
+    }
+
+    /**
+     * @param string $acceptedMimeType
+     */
+    public function addAcceptedMimeType($acceptedMimeType)
+    {
+        $this->acceptedMimeTypes[] = $acceptedMimeType;
     }
 }

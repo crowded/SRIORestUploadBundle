@@ -8,6 +8,7 @@ use SRIO\RestUploadBundle\Model\UploadableFileInterface;
 use SRIO\RestUploadBundle\Request\RequestContentHandler;
 use SRIO\RestUploadBundle\Request\RequestContentHandlerInterface;
 use SRIO\RestUploadBundle\Storage\FileAdapterInterface;
+use SRIO\RestUploadBundle\Storage\FileStorage;
 use SRIO\RestUploadBundle\Storage\FilesystemAdapterInterface;
 use SRIO\RestUploadBundle\Storage\UploadedFile;
 use SRIO\RestUploadBundle\Upload\StorageHandler;
@@ -37,11 +38,6 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
     protected $storageHandler;
 
     /**
-     * @var array
-     */
-    protected $acceptedMimeTypes = array();
-
-    /**
      * Constructor.
      *
      * @param StorageHandler $storageHandler
@@ -54,18 +50,16 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
     /**
      * Constructor.
      *
-     * @param Request $request
+     * @param Request       $request
      * @param FormInterface $form
-     * @param array $config
-     * @param array $acceptedMimeTypes
+     * @param array         $config
      *
      * @return bool
      */
-    public function handleUpload(Request $request, FormInterface $form = null, array $config = array(), $acceptedMimeTypes = null)
+    public function handleUpload(Request $request, FormInterface $form = null, array $config = array())
     {
         $this->form = $form;
         $this->config = $config;
-        $this->acceptedMimeTypes = $acceptedMimeTypes;
 
         return $this->handleRequest($request);
     }
@@ -81,24 +75,6 @@ abstract class AbstractUploadProcessor implements ProcessorInterface
      * @return \SRIO\RestUploadBundle\Upload\UploadResult
      */
     abstract public function handleRequest(Request $request);
-
-    /**
-     * Checks if the file is one of the desired mime types if these mime types are set.
-     *
-     * @param FileAdapterInterface       $file
-     * @param FilesystemAdapterInterface $filesystem
-     *
-     * @throws UploadException
-     */
-    protected function checkMimeType(FileAdapterInterface $file, FilesystemAdapterInterface $filesystem)
-    {
-        $mimeType = $filesystem->getMimeType($file->getName());
-
-        if (!is_null($this->acceptedMimeTypes) && !in_array($mimeType, $this->acceptedMimeTypes)) {
-            $filesystem->delete($file->getName());
-            throw new UploadException(sprintf('Mime-type %s is not accepted', $mimeType));
-        }
-    }
 
     /**
      * Create the form data that the form will be able to handle.

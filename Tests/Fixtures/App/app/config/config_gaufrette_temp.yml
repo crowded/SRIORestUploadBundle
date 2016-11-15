@@ -7,11 +7,11 @@ framework:
         storage_id: session.storage.filesystem
 
 srio_rest_upload:
-    accepted_mime_types: ['image/gif']
     temp_storage:
         type: gaufrette
         filesystem: gaufrette.temp_filesystem
     storages:
         default:
+            accepted_mime_types: ['image/gif']
             type: gaufrette
             filesystem: gaufrette.test_filesystem

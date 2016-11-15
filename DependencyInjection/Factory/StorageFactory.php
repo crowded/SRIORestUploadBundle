@@ -55,11 +55,18 @@ class StorageFactory
             $container->setDefinition($adapterId, $adapterDefinition);
         }
 
+        $accepted_mime_types = null;
+
+        if (isset($config['accepted_mime_types']) && is_array($config['accepted_mime_types']) && count($config['accepted_mime_types']) > 0) {
+            $accepted_mime_types = $config['accepted_mime_types'];
+        }
+
         $container
             ->setDefinition($id, new Definition('SRIO\RestUploadBundle\Storage\FileStorage'))
             ->addArgument($config['name'])
             ->addArgument(new Reference($adapterId))
             ->addArgument(new Reference($config['storage_strategy']))
-            ->addArgument(new Reference($config['naming_strategy']));
+            ->addArgument(new Reference($config['naming_strategy']))
+            ->addArgument($accepted_mime_types);
     }
 }
