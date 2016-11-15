@@ -99,7 +99,7 @@ class CleanTeampFolderCommandTest extends AbstractUploadTestCase
         ));
 
         $qb = self::$kernel->getContainer()->get('doctrine')->getRepository(self::$kernel->getContainer()->getParameter('srio_rest_upload.resumable_entity_class'))->createQueryBuilder('rus');
-        $tempStorage = self::$kernel->getContainer()->get('srio_rest_upload.storage_handler')->getTempStorage();
+        $tempStorage = self::$kernel->getContainer()->get('srio_rest_upload.storage_voter.default')->getTempStorage();
         foreach($qb->getQuery()->getResult() as $session)
         {
             $this->assertFalse($tempStorage->getFilesystem()->has($session->getFilePath()));

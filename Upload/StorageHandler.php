@@ -5,7 +5,7 @@ namespace SRIO\RestUploadBundle\Upload;
 use SRIO\RestUploadBundle\Exception\UploadException;
 use SRIO\RestUploadBundle\Storage\FileStorage;
 use SRIO\RestUploadBundle\Storage\FilesystemAdapterInterface;
-use SRIO\RestUploadBundle\Storage\Local\TempFilesystemInterface;
+use SRIO\RestUploadBundle\Storage\Temp\TempFilesystemInterface;
 use SRIO\RestUploadBundle\Storage\UploadedFile;
 use SRIO\RestUploadBundle\Voter\StorageVoter;
 
@@ -20,20 +20,13 @@ class StorageHandler
     protected $voter;
 
     /**
-     * @var FileStorage
-     */
-    protected $tempStorage;
-
-    /**
      * Constructor.
      *
      * @param StorageVoter $voter
-     * @param FileStorage $localStorage
      */
-    public function __construct(StorageVoter $voter, FileStorage $localStorage = null)
+    public function __construct(StorageVoter $voter)
     {
         $this->voter = $voter;
-        $this->tempStorage = $localStorage;
     }
 
     /**
@@ -85,19 +78,25 @@ class StorageHandler
     {
         $this->checkMimeType($context);
 
-        if(!is_null($this->tempStorage)) {
+        $fileStorage = $this->getStorage($context);
+
+        if($fileStorage->getFilesystem() instanceof TempFilesystemInterface) {
             $tempFileName = $context->getFile()->getFile()->getName();
-            $stream = $this->tempStorage->getFilesystem()->readStream($tempFileName);
+            $stream = $fileStorage->getFilesystem()->readStream($tempFileName);
             rewind($stream);
 
-            $uploadedFile = $this->getStorage($context, true)->storeStream($context, $stream);
+            $context->setUnfinished(false);
+
+            $uploadedFile = $this->getStorage($context)->storeStream($context, $stream);
 
             $context->setFile($uploadedFile);
 
-            $this->tempStorage->getFilesystem()->delete($tempFileName);
+            $fileStorage->getFilesystem()->delete($tempFileName);
 
             return $uploadedFile;
         }else{
+            $context->setUnfinished(false);
+
             return $context->getFile();
         }
     }
@@ -111,12 +110,13 @@ class StorageHandler
      */
     protected function checkMimeType(UploadContext $context)
     {
-        $fileStorage = $this->getStorage($context, true);
         $filesystem = $this->getStorage($context)->getFilesystem();
         $file = $context->getFile()->getFile();
         $mimeType = $filesystem->getMimeType($file->getName());
 
-        if (!is_null($fileStorage->getAcceptedMimeTypes()) && count($fileStorage->getAcceptedMimeTypes()) > 0 && !in_array($mimeType, $fileStorage->getAcceptedMimeTypes())) {
+        $acceptedMimeTypes = $this->voter->getAcceptedMimeTypes($context);
+
+        if ($acceptedMimeTypes && !in_array($mimeType, $acceptedMimeTypes)) {
             $filesystem->delete($file->getName());
             throw new UploadException(sprintf('Mime-type %s is not accepted', $mimeType));
         }
@@ -127,32 +127,17 @@ class StorageHandler
      *
      * @param UploadContext $context
      *
-     * @param bool $nonTemp
      * @return FileStorage
      * @throws UploadException
      */
-    public function getStorage(UploadContext $context, $nonTemp = false)
+    public function getStorage(UploadContext $context)
     {
-        if(!is_null($this->tempStorage) && !$nonTemp) {
-            $storage = $this->getTempStorage();
-        }else{
-            $storage = $this->voter->getStorage($context);
-        }
+        $storage = $this->voter->getStorage($context);
 
         if (!$storage instanceof FileStorage) {
             throw new UploadException('Storage returned by voter isn\'t instanceof FileStorage');
         }
 
         return $storage;
-    }
-
-    /**
-     * Returns the temp storage
-     *
-     * @return FileStorage
-     */
-    public function getTempStorage()
-    {
-        return $this->tempStorage;
     }
 }

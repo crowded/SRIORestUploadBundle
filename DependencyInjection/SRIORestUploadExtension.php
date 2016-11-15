@@ -101,7 +101,7 @@ class SRIORestUploadExtension extends Extension
 
             $factory->createTemp($container, $id, array_replace(['name' => 'temp.local'], $local_storage_adapter));
 
-            $storageHandler = $container->getDefinition('srio_rest_upload.storage_handler');
+            $storageHandler = $container->getDefinition('srio_rest_upload.storage_voter.default');
 
             $storageHandler->replaceArgument(1, new Reference($id));
         }

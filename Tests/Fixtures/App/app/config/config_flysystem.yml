@@ -11,3 +11,4 @@ srio_rest_upload:
         default:
             type: flysystem
             filesystem: oneup_flysystem.test_filesystem
+            check_mime_type: false

@@ -33,6 +33,11 @@ class UploadContext
     protected $storageName;
 
     /**
+     * @var bool
+     */
+    protected $unfinished = true;
+
+    /**
      * Constructor.
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
@@ -124,5 +129,21 @@ class UploadContext
     public function getStorageName()
     {
         return $this->storageName;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUnfinished()
+    {
+        return $this->unfinished;
+    }
+
+    /**
+     * @param bool $unfinished
+     */
+    public function setUnfinished($unfinished)
+    {
+        $this->unfinished = $unfinished;
     }
 }

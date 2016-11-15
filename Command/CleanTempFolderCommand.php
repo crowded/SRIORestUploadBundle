@@ -25,7 +25,7 @@ class CleanTempFolderCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $tempStorage = $this->getContainer()->get('srio_rest_upload.storage_handler')->getTempStorage();
+        $tempStorage = $this->getContainer()->get('srio_rest_upload.storage_voter.default')->getTempStorage();
         if(!is_null($tempStorage))
         {
             $qb = $this->getContainer()->get('doctrine')->getRepository($this->getContainer()->getParameter('srio_rest_upload.resumable_entity_class'))->createQueryBuilder('rus');

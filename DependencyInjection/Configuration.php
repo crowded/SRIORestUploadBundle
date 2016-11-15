@@ -48,6 +48,7 @@ class Configuration implements ConfigurationInterface
                             ->arrayNode('accepted_mime_types')
                                 ->prototype('scalar')->end()
                             ->end()
+                            ->booleanNode('check_mime_type')->defaultTrue()->end()
                             ->scalarNode('filesystem')->isRequired()->end()
                             ->scalarNode('naming_strategy')
                                 ->defaultValue('srio_rest_upload.naming.default_strategy')

@@ -55,10 +55,15 @@ class StorageFactory
             $container->setDefinition($adapterId, $adapterDefinition);
         }
 
-        $accepted_mime_types = null;
+        $accepted_mime_types = array();
+        $check_mime_type = true;
 
         if (isset($config['accepted_mime_types']) && is_array($config['accepted_mime_types']) && count($config['accepted_mime_types']) > 0) {
             $accepted_mime_types = $config['accepted_mime_types'];
+        }
+
+        if (isset($config['check_mime_type'])) {
+            $check_mime_type = $config['check_mime_type'];
         }
 
         $container
@@ -67,6 +72,7 @@ class StorageFactory
             ->addArgument(new Reference($adapterId))
             ->addArgument(new Reference($config['storage_strategy']))
             ->addArgument(new Reference($config['naming_strategy']))
+            ->addArgument($check_mime_type)
             ->addArgument($accepted_mime_types);
     }
 }

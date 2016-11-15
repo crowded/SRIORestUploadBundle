@@ -24,13 +24,20 @@ class StorageVoter
     protected $defaultStorage;
 
     /**
+     * @var FileStorage
+     */
+    protected $tempStorage;
+
+    /**
      * Constructor.
      *
-     * @param $defaultStorage
+     * @param             $defaultStorage
+     * @param FileStorage $localStorage
      */
-    public function __construct($defaultStorage = null)
+    public function __construct($defaultStorage = null, FileStorage $localStorage = null)
     {
         $this->defaultStorage = $defaultStorage;
+        $this->tempStorage = $localStorage;
     }
 
     /**
@@ -68,6 +75,15 @@ class StorageVoter
             throw new UploadException('No storage found');
         }
 
+        if(!is_null($this->tempStorage) && $context->isUnfinished()) {
+            return $this->getTempStorage();
+        }
+
+        return $this->getFinishedStorage($context);
+    }
+
+    protected function getFinishedStorage(UploadContext $context)
+    {
         if (($storageName = $context->getStorageName()) !== null
             || (($storageName = $this->defaultStorage) !== null)) {
             if (!array_key_exists($storageName, $this->storages)) {
@@ -81,5 +97,29 @@ class StorageVoter
         }
 
         return current($this->storages);
+    }
+
+    /**
+     * @param UploadContext $context
+     *
+     * @return array|bool
+     */
+    public function getAcceptedMimeTypes(UploadContext $context)
+    {
+        if($this->getFinishedStorage($context)->checkMimeType()) {
+            return $this->getFinishedStorage($context)->getAcceptedMimeTypes();
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the temp storage
+     *
+     * @return FileStorage
+     */
+    public function getTempStorage()
+    {
+        return $this->tempStorage;
     }
 }

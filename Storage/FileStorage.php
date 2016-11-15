@@ -36,21 +36,28 @@ class FileStorage
     protected $acceptedMimeTypes = array();
 
     /**
+     * @var bool
+     */
+    protected $checkMimeType = true;
+
+    /**
      * Constructor.
      *
      * @param                            $name
      * @param FilesystemAdapterInterface $filesystem
      * @param StorageStrategy            $storageStrategy
      * @param NamingStrategy             $namingStrategy
+     * @param bool                       $checkMimeType
      * @param array                      $acceptedMimeTypes
      */
-    public function __construct($name, FilesystemAdapterInterface $filesystem, StorageStrategy $storageStrategy, NamingStrategy $namingStrategy, $acceptedMimeTypes = array())
+    public function __construct($name, FilesystemAdapterInterface $filesystem, StorageStrategy $storageStrategy, NamingStrategy $namingStrategy, $checkMimeType = true, $acceptedMimeTypes = array())
     {
         $this->name = $name;
         $this->filesystem = $filesystem;
         $this->storageStrategy = $storageStrategy;
         $this->namingStrategy = $namingStrategy;
         $this->acceptedMimeTypes = $acceptedMimeTypes;
+        $this->checkMimeType = $checkMimeType;
     }
 
     /**
@@ -182,5 +189,13 @@ class FileStorage
     public function addAcceptedMimeType($acceptedMimeType)
     {
         $this->acceptedMimeTypes[] = $acceptedMimeType;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function checkMimeType()
+    {
+        return $this->checkMimeType;
     }
 }

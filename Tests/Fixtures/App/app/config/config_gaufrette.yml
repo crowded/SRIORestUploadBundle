@@ -11,3 +11,4 @@ srio_rest_upload:
         default:
             type: gaufrette
             filesystem: gaufrette.test_filesystem
+            check_mime_type: false
