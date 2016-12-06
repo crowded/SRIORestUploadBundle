@@ -15,6 +15,11 @@ class UploadedFile
     protected $file;
 
     /**
+     * @var string
+     */
+    protected $mimeType;
+
+    /**
      * @param FileStorage          $storage
      * @param FileAdapterInterface $file
      */
@@ -38,5 +43,21 @@ class UploadedFile
     public function getStorage()
     {
         return $this->storage;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
+    /**
+     * @param string $mimeType
+     */
+    public function setMimeType($mimeType)
+    {
+        $this->mimeType = $mimeType;
     }
 }

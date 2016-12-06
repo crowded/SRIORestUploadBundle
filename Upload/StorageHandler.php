@@ -76,7 +76,7 @@ class StorageHandler
      */
     public function finishStore(UploadContext $context)
     {
-        $this->checkMimeType($context);
+        $mimeType = $this->checkMimeType($context);
 
         $fileStorage = $this->getStorage($context);
 
@@ -88,6 +88,7 @@ class StorageHandler
             $context->setUnfinished(false);
 
             $uploadedFile = $this->getStorage($context)->storeStream($context, $stream);
+            $uploadedFile->setMimeType($mimeType);
 
             $context->setFile($uploadedFile);
 
@@ -97,7 +98,10 @@ class StorageHandler
         }else{
             $context->setUnfinished(false);
 
-            return $context->getFile();
+            $file = $context->getFile();
+            $file->setMimeType($mimeType);
+
+            return $file; 
         }
     }
 
@@ -106,6 +110,7 @@ class StorageHandler
      *
      * @param UploadContext $context
      *
+     * @return string
      * @throws UploadException
      */
     protected function checkMimeType(UploadContext $context)
@@ -120,6 +125,8 @@ class StorageHandler
             $filesystem->delete($file->getName());
             throw new UploadException(sprintf('Mime-type %s is not accepted', $mimeType));
         }
+
+        return $mimeType;
     }
 
     /**
