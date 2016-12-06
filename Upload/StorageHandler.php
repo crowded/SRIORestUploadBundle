@@ -87,11 +87,9 @@ class StorageHandler
 
             $context->setUnfinished(false);
 
-            $uploadedFile = $this->getStorage($context)->storeStream($context, $stream, array(
-                'metadata' => array(
-                    FileStorage::METADATA_CONTENT_TYPE => $mimeType,
-                ),
-            ));
+            $uploadedFile = $this->getStorage($context)->storeStream($context, $stream, array_replace_recursive($context->getConfig(), array(
+                FileStorage::METADATA_CONTENT_TYPE => $mimeType,
+            )));
             $uploadedFile->setMimeType($mimeType);
 
             $context->setFile($uploadedFile);
