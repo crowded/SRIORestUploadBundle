@@ -58,6 +58,8 @@ class FlysystemFilesystemAdapter implements FilesystemAdapterInterface
      */
     public function write($path, $content, array $config = array())
     {
+        $config = $this->resolveConfigKeys($config);
+
         try {
             return $this->filesystem->write($path, $content, $config);
         } catch (FileExistsException $ex) {
@@ -70,6 +72,8 @@ class FlysystemFilesystemAdapter implements FilesystemAdapterInterface
      */
     public function writeStream($path, $resource, array $config = array())
     {
+        $config = $this->resolveConfigKeys($config);
+
         try {
             return $this->filesystem->writeStream($path, $resource, $config);
         } catch (FileExistsException $ex) {
@@ -82,6 +86,8 @@ class FlysystemFilesystemAdapter implements FilesystemAdapterInterface
      */
     public function put($path, $content, array $config = array())
     {
+        $config = $this->resolveConfigKeys($config);
+
         return $this->filesystem->put($path, $content, $config);
     }
 
@@ -90,6 +96,8 @@ class FlysystemFilesystemAdapter implements FilesystemAdapterInterface
      */
     public function putStream($path, $resource, array $config = array())
     {
+        $config = $this->resolveConfigKeys($config);
+
         return $this->filesystem->putStream($path, $resource, $config);
     }
 
@@ -198,5 +206,25 @@ class FlysystemFilesystemAdapter implements FilesystemAdapterInterface
         }
 
         return new WrappingFileExistsException($previousEx->getMessage(), $previousEx->getCode(), $previousEx);
+    }
+
+    protected $configKeyMap = array(
+        'contentType' => 'ContentType'
+    );
+
+    protected function resolveConfigKeys($config)
+    {
+        $newConfig = [];
+
+        foreach($config as $key => $value) {
+            if (isset($this->configKeyMap[$key])) {
+                $newConfig[$this->configKeyMap[$key]] = $value;
+                continue;
+            }
+
+            $newConfig[$key] = $value;
+        }
+
+        return $newConfig;
     }
 }
